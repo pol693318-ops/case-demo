@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Case Opener Demo - GitHub</title>
+    <title>Case Opener - Slot Machine Style</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             color: white;
@@ -44,8 +44,13 @@
             backdrop-filter: blur(10px);
         }
         
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
         .balance-value {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             color: #ffd700;
         }
@@ -66,11 +71,14 @@
             text-align: center;
             width: 250px;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .case-card:hover {
             transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
         }
         
         .case-image {
@@ -85,178 +93,414 @@
             font-size: 60px;
         }
         
+        .case-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
         .case-price {
             color: #ffd700;
             font-size: 24px;
             font-weight: bold;
         }
         
-        .modal {
+        .case-items-list {
+            margin-top: 10px;
+            font-size: 11px;
+            opacity: 0.6;
+        }
+        
+        /* Слот-машина (барабан) */
+        .slot-machine-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            flex-direction: column;
         }
         
-        .modal-content {
-            background: linear-gradient(135deg, #1e1e3e, #2a1e3e);
-            border-radius: 30px;
-            padding: 30px;
+        .slot-container {
+            background: linear-gradient(145deg, #2a2a3a, #1a1a2a);
+            border-radius: 40px;
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .reels-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .reel {
+            width: 180px;
+            height: 200px;
+            background: #0a0a1a;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
+            border: 2px solid #ffd700;
+        }
+        
+        .reel-inner {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.1, 1);
+        }
+        
+        .reel-item {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .reel-value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        
+        .reel-label {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+        
+        /* Цены для редкости */
+        .value-common { color: #9e9e9e; }
+        .value-rare { color: #4caf50; }
+        .value-epic { color: #2196f3; }
+        .value-legendary { color: #ff9800; }
+        .value-mythical { color: #9c27b0; }
+        .value-jackpot { color: #f44336; }
+        
+        .slot-info {
             text-align: center;
-            max-width: 400px;
+            margin-top: 20px;
+            font-size: 18px;
         }
         
-        .close-btn {
+        .spinning-text {
+            color: #ffd700;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .close-slot-btn {
+            margin-top: 30px;
             background: linear-gradient(45deg, #ff6b6b, #ee5a24);
             border: none;
             color: white;
-            padding: 12px 30px;
-            border-radius: 25px;
+            padding: 12px 40px;
+            border-radius: 30px;
             cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+        
+        .close-slot-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .result-highlight {
+            font-size: 28px;
+            font-weight: bold;
             margin-top: 20px;
+            text-align: center;
         }
         
         .footer {
             text-align: center;
             padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            margin-top: 40px;
             font-size: 12px;
             opacity: 0.6;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .opening {
+            animation: shake 0.3s ease-in-out;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="logo">🎲 CASE OPENING DEMO</div>
+        <div class="logo">🎰 CASE BATTLE | SLOT STYLE</div>
         <div class="balance-card">
-            <div>BALANCE</div>
+            <div class="balance-label">💰 BALANCE</div>
             <div class="balance-value" id="balance">1000</div>
         </div>
     </div>
     
-    <div class="cases-container">
-        <div class="case-card" onclick="openCaseDemo(1)">
-            <div class="case-image">📦</div>
-            <div class="case-name">🍀 Lucky Starter</div>
-            <div class="case-price">💰 100 coins</div>
+    <div class="cases-container" id="casesContainer">
+        <div class="case-card" onclick="openCase(1)">
+            <div class="case-image">🍀</div>
+            <div class="case-name">Lucky Starter</div>
+            <div class="case-price">100 coins</div>
+            <div class="case-items-list">20 - 5000 coins</div>
         </div>
-        <div class="case-card" onclick="openCaseDemo(2)">
+        <div class="case-card" onclick="openCase(2)">
             <div class="case-image">🔥</div>
-            <div class="case-name">🔥 Premium Vault</div>
-            <div class="case-price">💰 500 coins</div>
+            <div class="case-name">Premium Vault</div>
+            <div class="case-price">500 coins</div>
+            <div class="case-items-list">200 - 20000 coins</div>
         </div>
-        <div class="case-card" onclick="openCaseDemo(3)">
+        <div class="case-card" onclick="openCase(3)">
             <div class="case-image">💎</div>
-            <div class="case-name">👑 Legendary</div>
-            <div class="case-price">💰 1000 coins</div>
+            <div class="case-name">Legendary</div>
+            <div class="case-price">1000 coins</div>
+            <div class="case-items-list">500 - 50000 coins</div>
         </div>
     </div>
     
     <div class="footer">
-        🔒 Демонстрационная версия | Реальные кейсы работают через бэкенд
+        🔒 Нажми на кейс | Барабан покажет все возможные выигрыши | Результат честный
     </div>
     
-    <div id="resultModal" class="modal">
-        <div class="modal-content">
-            <div style="font-size: 60px; margin-bottom: 20px;" id="winEmoji">🎉</div>
-            <div style="font-size: 28px; font-weight: bold;" id="winTitle">You won!</div>
-            <div style="font-size: 32px; margin: 15px 0;" id="winValue">0 coins</div>
-            <button class="close-btn" onclick="closeModal()">Close</button>
+    <!-- Слот-машина (оверлей) -->
+    <div id="slotOverlay" class="slot-machine-overlay">
+        <div class="slot-container">
+            <div class="reels-container" id="reelsContainer">
+                <!-- 3 барабана будут созданы через JS -->
+            </div>
+            <div class="slot-info" id="slotInfo">
+                🎰 SPINNING... 🎰
+            </div>
+            <div class="result-highlight" id="resultHighlight"></div>
+            <button class="close-slot-btn" onclick="closeSlotMachine()">✖ CLOSE</button>
         </div>
     </div>
     
     <script>
         let balance = 1000;
+        let isSpinning = false;
         
-        function updateBalanceDisplay() {
+        // Конфигурация предметов для каждого кейса
+        const caseItems = {
+            1: [  // Lucky Starter
+                {value: 20, name: "Common Box", rarity: "common", label: "📦 Common"},
+                {value: 50, name: "Uncommon", rarity: "common", label: "🟢 Uncommon"},
+                {value: 100, name: "Rare", rarity: "rare", label: "🔵 Rare"},
+                {value: 250, name: "Epic", rarity: "epic", label: "🟣 Epic"},
+                {value: 500, name: "Legendary", rarity: "legendary", label: "🟠 Legendary"},
+                {value: 1000, name: "Mythical", rarity: "mythical", label: "🐉 Mythical"},
+                {value: 2500, name: "🔥 GODLY", rarity: "jackpot", label: "💎 GODLY"},
+                {value: 5000, name: "JACKPOT", rarity: "jackpot", label: "🎰 JACKPOT"}
+            ],
+            2: [  // Premium Vault
+                {value: 200, name: "Rare Item", rarity: "rare", label: "🔵 Rare"},
+                {value: 400, name: "Epic Item", rarity: "epic", label: "🟣 Epic"},
+                {value: 800, name: "Legendary", rarity: "legendary", label: "🟠 Legendary"},
+                {value: 1500, name: "Mythical", rarity: "mythical", label: "🐉 Mythical"},
+                {value: 3000, name: "🔥 Inferno", rarity: "mythical", label: "🔥 Inferno"},
+                {value: 7500, name: "Divine", rarity: "jackpot", label: "😇 Divine"},
+                {value: 15000, name: "💀 Void", rarity: "jackpot", label: "💀 Void"},
+                {value: 20000, name: "ULTRA", rarity: "jackpot", label: "💎 ULTRA"}
+            ],
+            3: {  // Legendary
+                values: [500, 1000, 2000, 3500, 5000, 10000, 20000, 35000, 50000],
+                names: ["Epic", "Legendary", "Mythical", "Ancient", "Divine", "Godly", "🔥 Eternal", "👑 Royal", "🌈 GOD TIER"],
+                rarities: ["epic", "legendary", "mythical", "mythical", "jackpot", "jackpot", "jackpot", "jackpot", "jackpot"]
+            }
+        };
+        
+        // Нормализуем 3 кейс
+        caseItems[3] = caseItems[3].values.map((val, idx) => ({
+            value: val,
+            name: caseItems[3].names[idx],
+            rarity: caseItems[3].rarities[idx],
+            label: `${caseItems[3].names[idx]} ${val}💰`
+        }));
+        
+        const casePrices = {1: 100, 2: 500, 3: 1000};
+        
+        function updateBalance() {
             document.getElementById('balance').textContent = balance;
         }
         
-        // Предметы для демо-открытия
-        const items = {
-            1: [  // Starter case
-                {name: "Common Skin", value: 20, chance: 40, emoji: "🎒"},
-                {name: "Rare Skin", value: 80, chance: 30, emoji: "🔵"},
-                {name: "Epic Skin", value: 200, chance: 15, emoji: "🟣"},
-                {name: "Legendary", value: 500, chance: 10, emoji: "🟠"},
-                {name: "🔥 JACKPOT!", value: 2500, chance: 5, emoji: "💎"}
-            ],
-            2: [  // Premium case
-                {name: "Epic Weapon", value: 400, chance: 40, emoji: "⚔️"},
-                {name: "Legendary", value: 1000, chance: 30, emoji: "👑"},
-                {name: "Mythical", value: 3000, chance: 15, emoji: "🐉"},
-                {name: "God Tier", value: 7500, chance: 10, emoji: "😇"},
-                {name: "💀 ULTRA", value: 20000, chance: 5, emoji: "🔥"}
-            ],
-            3: [  // Legendary case
-                {name: "Rare Item", value: 800, chance: 35, emoji: "📦"},
-                {name: "Legendary", value: 2000, chance: 30, emoji: "⭐"},
-                {name: "Mythical", value: 5000, chance: 20, emoji: "🌟"},
-                {name: "Divine", value: 15000, chance: 10, emoji: "✨"},
-                {name: "🌈 GODLY", value: 50000, chance: 5, emoji: "💎"}
-            ]
-        };
+        // Функция выбора предмета по честному рандому (с весом)
+        function selectItemByChance(items) {
+            // Создаем веса: чем выше ценность, тем меньше шанс
+            let totalWeight = 0;
+            const weightedItems = items.map(item => {
+                // Чем выше value, тем меньше вес
+                let weight = 100 / (1 + Math.log10(item.value / 10));
+                weight = Math.max(5, Math.min(50, weight));
+                totalWeight += weight;
+                return {...item, weight};
+            });
+            
+            let rand = Math.random() * totalWeight;
+            let cumulative = 0;
+            for (let item of weightedItems) {
+                cumulative += item.weight;
+                if (rand <= cumulative) return item;
+            }
+            return items[0];
+        }
         
-        const prices = {1: 100, 2: 500, 3: 1000};
+        // Создание барабанов с возможными выигрышами
+        function createReels(caseId) {
+            const items = caseItems[caseId];
+            const reelsContainer = document.getElementById('reelsContainer');
+            reelsContainer.innerHTML = '';
+            
+            // Создаем 3 барабана с одинаковыми предметами (для эффекта слота)
+            for (let reelNum = 0; reelNum < 3; reelNum++) {
+                const reel = document.createElement('div');
+                reel.className = 'reel';
+                const reelInner = document.createElement('div');
+                reelInner.className = 'reel-inner';
+                reelInner.id = `reel-${reelNum}`;
+                
+                // Добавляем каждый предмет несколько раз для красивого скролла
+                let itemsHtml = '';
+                for (let repeat = 0; repeat < 5; repeat++) {
+                    for (let item of items) {
+                        const rarityClass = `value-${item.rarity}`;
+                        itemsHtml += `
+                            <div class="reel-item">
+                                <div class="reel-value ${rarityClass}">${item.value}</div>
+                                <div class="reel-label">${item.label || item.name}</div>
+                            </div>
+                        `;
+                    }
+                }
+                reelInner.innerHTML = itemsHtml;
+                reel.appendChild(reelInner);
+                reelsContainer.appendChild(reel);
+            }
+        }
         
-        function openCaseDemo(caseId) {
-            const price = prices[caseId];
+        // Анимация прокрутки барабана
+        async function spinReels(caseId, finalItem) {
+            const items = caseItems[caseId];
+            const itemHeight = 200; // высота одного элемента в пикселях
+            
+            // Находим индекс финального предмета в списке
+            const finalIndex = items.findIndex(item => item.value === finalItem.value);
+            
+            // Для каждого барабана делаем случайную прокрутку
+            const promises = [];
+            for (let reelNum = 0; reelNum < 3; reelNum++) {
+                const reelInner = document.getElementById(`reel-${reelNum}`);
+                const totalItems = 5 * items.length; // количество элементов в барабане
+                
+                // Случайное количество прокруток (от 10 до 25 полных оборотов)
+                const spins = 12 + Math.floor(Math.random() * 15);
+                const offset = (spins * items.length + finalIndex) * itemHeight;
+                
+                promises.push(new Promise(resolve => {
+                    reelInner.style.transition = 'transform 1.5s cubic-bezier(0.25, 0.1, 0.1, 1)';
+                    reelInner.style.transform = `translateY(-${offset}px)`;
+                    
+                    // Запоминаем финальную позицию
+                    reelInner.dataset.finalOffset = offset;
+                    
+                    setTimeout(resolve, 1600);
+                }));
+            }
+            
+            await Promise.all(promises);
+        }
+        
+        // Основная функция открытия кейса
+        async function openCase(caseId) {
+            if (isSpinning) {
+                alert("Please wait, case is opening...");
+                return;
+            }
+            
+            const price = casePrices[caseId];
             
             if (balance < price) {
-                alert("Not enough balance! Refresh page to reset.");
+                alert(`Not enough balance! Need ${price} coins. Refresh to reset.`);
                 return;
             }
             
             // Списываем цену
             balance -= price;
-            updateBalanceDisplay();
+            updateBalance();
             
-            // Выбираем предмет по шансам
-            const caseItems = items[caseId];
-            let rand = Math.random() * 100;
-            let cumulative = 0;
-            let selectedItem = caseItems[0];
+            // Выбираем выигрыш
+            const items = caseItems[caseId];
+            const selectedItem = selectItemByChance(items);
             
-            for (let item of caseItems) {
-                cumulative += item.chance;
-                if (rand <= cumulative) {
-                    selectedItem = item;
-                    break;
-                }
-            }
+            // Показываем слот-машину
+            const overlay = document.getElementById('slotOverlay');
+            const slotInfo = document.getElementById('slotInfo');
+            const resultHighlight = document.getElementById('resultHighlight');
+            
+            createReels(caseId);
+            overlay.style.display = 'flex';
+            slotInfo.innerHTML = '🎰 SPINNING... 🎰';
+            slotInfo.className = 'slot-info spinning-text';
+            resultHighlight.innerHTML = '';
+            isSpinning = true;
+            
+            // Небольшая задержка перед началом анимации
+            await new Promise(r => setTimeout(r, 100));
+            
+            // Запускаем анимацию барабанов
+            await spinReels(caseId, selectedItem);
             
             // Добавляем выигрыш к балансу
             balance += selectedItem.value;
-            updateBalanceDisplay();
+            updateBalance();
             
             // Показываем результат
-            showResult(selectedItem);
+            const rarityClass = `value-${selectedItem.rarity}`;
+            slotInfo.innerHTML = `✨ YOU WON! ✨`;
+            slotInfo.className = 'slot-info';
+            resultHighlight.innerHTML = `
+                <div style="font-size: 24px;">🎁 ${selectedItem.name || selectedItem.label} 🎁</div>
+                <div class="${rarityClass}" style="font-size: 48px; margin-top: 10px;">+${selectedItem.value} COINS!</div>
+            `;
+            
+            isSpinning = false;
         }
         
-        function showResult(item) {
-            document.getElementById('winEmoji').textContent = item.emoji;
-            document.getElementById('winTitle').textContent = `You won: ${item.name}!`;
-            document.getElementById('winValue').innerHTML = `💰 ${item.value} coins`;
-            document.getElementById('resultModal').style.display = 'flex';
+        function closeSlotMachine() {
+            document.getElementById('slotOverlay').style.display = 'none';
+            const slotInfo = document.getElementById('slotInfo');
+            const resultHighlight = document.getElementById('resultHighlight');
+            slotInfo.innerHTML = '';
+            resultHighlight.innerHTML = '';
+            isSpinning = false;
         }
         
-        function closeModal() {
-            document.getElementById('resultModal').style.display = 'none';
-        }
-        
+        // Закрытие по клику вне
         window.onclick = function(event) {
-            const modal = document.getElementById('resultModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+            const overlay = document.getElementById('slotOverlay');
+            if (event.target === overlay) {
+                closeSlotMachine();
             }
         };
         
-        updateBalanceDisplay();
+        updateBalance();
     </script>
 </body>
 </html>
