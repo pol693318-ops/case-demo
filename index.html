@@ -1,111 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Case Opener - Slot Machine</title>
+    <title>Кейсы с прокруткой</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
         
         body {
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0f1e, #0a0a2a);
+            font-family: Arial, sans-serif;
             min-height: 100vh;
-            color: white;
-        }
-        
-        .header {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 20px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        .balance-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 12px 24px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .balance-label {
-            font-size: 14px;
-            opacity: 0.7;
-        }
-        
-        .balance-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #ffd700;
-        }
-        
-        .cases-container {
-            padding: 40px;
-            display: flex;
-            gap: 30px;
             justify-content: center;
-            flex-wrap: wrap;
+            align-items: center;
         }
         
-        .case-card {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
+        .container {
             text-align: center;
-            width: 250px;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
         }
         
-        .case-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.3);
+        .balance {
+            background: rgba(0,0,0,0.5);
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: inline-block;
         }
         
-        .case-image {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 15px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 60px;
-        }
-        
-        .case-name {
-            font-size: 20px;
+        .balance span {
+            font-size: 36px;
+            color: gold;
             font-weight: bold;
+        }
+        
+        .cases {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .case {
+            background: linear-gradient(145deg, #1e1e3e, #0e0e2e);
+            border-radius: 20px;
+            padding: 20px;
+            width: 200px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+        
+        .case:hover {
+            transform: translateY(-5px);
+            border-color: gold;
+        }
+        
+        .case-icon {
+            font-size: 60px;
             margin-bottom: 10px;
         }
         
-        .case-price {
-            color: #ffd700;
-            font-size: 24px;
+        .case-name {
+            font-size: 18px;
             font-weight: bold;
+            margin-bottom: 5px;
         }
         
-        /* Слот-машина - стили обязательно видны */
+        .case-price {
+            color: gold;
+            font-size: 20px;
+        }
+        
+        /* Окно с прокруткой */
         .slot-overlay {
             display: none;
             position: fixed;
@@ -113,108 +86,106 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0,0,0,0.95);
             justify-content: center;
             align-items: center;
-            z-index: 9999;
+            z-index: 1000;
         }
         
         .slot-window {
             background: linear-gradient(145deg, #2a2a3a, #1a1a2a);
             border-radius: 30px;
             padding: 30px;
-            text-align: center;
-            border: 3px solid #ffd700;
-            min-width: 600px;
+            border: 3px solid gold;
+            min-width: 500px;
         }
         
         .slot-title {
             font-size: 24px;
+            color: gold;
             margin-bottom: 20px;
-            color: #ffd700;
         }
         
         .reels {
             display: flex;
             gap: 15px;
             justify-content: center;
-            margin-bottom: 30px;
+            margin: 20px 0;
         }
         
         .reel {
-            width: 150px;
-            height: 180px;
+            width: 120px;
+            height: 160px;
             background: #000;
             border-radius: 15px;
             overflow: hidden;
-            border: 2px solid #ffd700;
+            border: 2px solid gold;
             position: relative;
         }
         
         .reel-strip {
             position: absolute;
             width: 100%;
-            transition: transform 1.5s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+            transition: transform 1.8s cubic-bezier(0.2, 0.9, 0.3, 1.1);
         }
         
         .reel-item {
-            height: 180px;
+            height: 160px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-bottom: 1px solid #ffd700;
+            background: linear-gradient(135deg, #1a1a2e, #0a0a1e);
+            border-bottom: 1px solid gold;
         }
         
         .reel-value {
-            font-size: 42px;
+            font-size: 32px;
             font-weight: bold;
         }
         
         .reel-name {
-            font-size: 12px;
-            margin-top: 10px;
-            opacity: 0.8;
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.7;
         }
-        
-        .value-common { color: #9e9e9e; }
-        .value-rare { color: #4caf50; }
-        .value-epic { color: #2196f3; }
-        .value-legendary { color: #ff9800; }
-        .value-mythical { color: #9c27b0; }
-        .value-jackpot { color: #ff4444; }
         
         .slot-status {
             font-size: 18px;
-            margin: 20px 0;
+            margin: 20px;
             padding: 10px;
             background: rgba(0,0,0,0.5);
             border-radius: 10px;
         }
         
         .slot-result {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         
-        .slot-close {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ff4757);
             border: none;
             color: white;
-            padding: 12px 30px;
+            padding: 10px 25px;
             border-radius: 25px;
             cursor: pointer;
             font-size: 16px;
             margin-top: 10px;
         }
         
-        .slot-close:hover {
+        button:hover {
             transform: scale(1.05);
         }
         
-        .spinning {
+        .value-common { color: #9e9e9e; }
+        .value-rare { color: #4caf50; }
+        .value-epic { color: #2196f3; }
+        .value-legendary { color: #ff9800; }
+        .value-jackpot { color: #ff4444; }
+        
+        .blink {
             animation: blink 0.5s infinite;
         }
         
@@ -222,138 +193,118 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        
-        .footer {
-            text-align: center;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            margin-top: 40px;
-            font-size: 12px;
-            opacity: 0.6;
-        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">🎰 CASE SLOT MACHINE</div>
-        <div class="balance-card">
-            <div class="balance-label">💰 BALANCE</div>
-            <div class="balance-value" id="balance">1000</div>
+    <div class="container">
+        <div class="balance">
+            💰 БАЛАНС: <span id="balance">1000</span> монет
         </div>
+        
+        <div class="cases">
+            <div class="case" onclick="openCase(1)">
+                <div class="case-icon">🍀</div>
+                <div class="case-name">Lucky Starter</div>
+                <div class="case-price">100 монет</div>
+            </div>
+            <div class="case" onclick="openCase(2)">
+                <div class="case-icon">🔥</div>
+                <div class="case-name">Premium Vault</div>
+                <div class="case-price">500 монет</div>
+            </div>
+            <div class="case" onclick="openCase(3)">
+                <div class="case-icon">💎</div>
+                <div class="case-name">Legendary</div>
+                <div class="case-price">1000 монет</div>
+            </div>
+        </div>
+        
+        <div style="font-size: 12px; opacity: 0.6;">👇 НАЖМИ НА КЕЙС 👇</div>
     </div>
     
-    <div class="cases-container">
-        <div class="case-card" onclick="openCaseWithSlot(1)">
-            <div class="case-image">🍀</div>
-            <div class="case-name">Lucky Starter</div>
-            <div class="case-price">100 coins</div>
-        </div>
-        <div class="case-card" onclick="openCaseWithSlot(2)">
-            <div class="case-image">🔥</div>
-            <div class="case-name">Premium Vault</div>
-            <div class="case-price">500 coins</div>
-        </div>
-        <div class="case-card" onclick="openCaseWithSlot(3)">
-            <div class="case-image">💎</div>
-            <div class="case-name">Legendary</div>
-            <div class="case-price">1000 coins</div>
-        </div>
-    </div>
-    
-    <div class="footer">
-        🔒 Нажми на кейс → появится слот-машина → барабан прокрутится → узнаешь выигрыш
-    </div>
-    
-    <!-- Окно слота -->
     <div id="slotOverlay" class="slot-overlay">
         <div class="slot-window">
-            <div class="slot-title">🎰 OPENING CASE... 🎰</div>
-            <div class="reels" id="reelsContainer"></div>
-            <div class="slot-status" id="slotStatus">Нажми на кейс, чтобы начать</div>
+            <div class="slot-title">🎰 ОТКРЫТИЕ КЕЙСА 🎰</div>
+            <div class="reels" id="reels"></div>
+            <div class="slot-status" id="slotStatus">Нажми на кейс...</div>
             <div class="slot-result" id="slotResult"></div>
-            <button class="slot-close" onclick="closeSlot()">Закрыть</button>
+            <button onclick="closeSlot()">ЗАКРЫТЬ</button>
         </div>
     </div>
     
     <script>
-        let currentBalance = 1000;
-        let isPlaying = false;
+        let balance = 1000;
+        let isSpinning = false;
         
-        // Предметы для каждого кейса
-        const itemsByCase = {
-            1: [  // Starter - 100 монет
-                {value: 10, name: "Мусор", rarity: "common"},
-                {value: 25, name: "Обычный", rarity: "common"},
+        // ВЫИГРЫШИ ДЛЯ КАЖДОГО КЕЙСА
+        const items = {
+            1: [
+                {value: 20, name: "Обычный скин", rarity: "common"},
                 {value: 50, name: "Необычный", rarity: "common"},
                 {value: 100, name: "Редкий", rarity: "rare"},
                 {value: 200, name: "Эпический", rarity: "epic"},
                 {value: 400, name: "Легендарный", rarity: "legendary"},
-                {value: 800, name: "Мифический", rarity: "mythical"},
-                {value: 2000, name: "🔥 ДЖЕКПОТ 🔥", rarity: "jackpot"}
+                {value: 800, name: "Мифический", rarity: "jackpot"},
+                {value: 2000, name: "🔥 ДЖЕКПОТ!", rarity: "jackpot"}
             ],
-            2: {  // Premium - 500 монет
-                values: [200, 350, 550, 800, 1200, 1800, 3000, 6000, 12000],
-                names: ["Редкий", "Эпический", "Легендарный", "Мифический", "Божественный", "🔥 Адский", "💀 Войд", "👑 Королевский", "🌈 БОГ"],
-                rarities: ["rare", "epic", "legendary", "mythical", "mythical", "jackpot", "jackpot", "jackpot", "jackpot"]
-            },
-            3: {  // Legendary - 1000 монет
-                values: [500, 900, 1500, 2500, 4000, 7000, 12000, 20000, 35000, 60000],
-                names: ["Эпический", "Легендарный", "Мифический", "Древний", "Божественный", "🔥 Бессмертный", "💀 Жнец", "👑 Император", "⭐ ЗВЕЗДА", "🌈 АБСОЛЮТ"],
-                rarities: ["epic", "legendary", "mythical", "mythical", "jackpot", "jackpot", "jackpot", "jackpot", "jackpot", "jackpot"]
-            }
+            2: [
+                {value: 200, name: "Редкий предмет", rarity: "rare"},
+                {value: 400, name: "Эпический", rarity: "epic"},
+                {value: 700, name: "Легендарный", rarity: "legendary"},
+                {value: 1200, name: "Мифический", rarity: "jackpot"},
+                {value: 2000, name: "Божественный", rarity: "jackpot"},
+                {value: 4000, name: "🔥 ДЖЕКПОТ!", rarity: "jackpot"},
+                {value: 8000, name: "💀 ВОЙД", rarity: "jackpot"}
+            ],
+            3: [
+                {value: 500, name: "Эпический", rarity: "epic"},
+                {value: 1000, name: "Легендарный", rarity: "legendary"},
+                {value: 2000, name: "Мифический", rarity: "jackpot"},
+                {value: 3500, name: "Древний", rarity: "jackpot"},
+                {value: 6000, name: "Божественный", rarity: "jackpot"},
+                {value: 10000, name: "🔥 ПЛАМЯ", rarity: "jackpot"},
+                {value: 20000, name: "👑 КОРОЛЬ", rarity: "jackpot"},
+                {value: 50000, name: "🌈 АБСОЛЮТ", rarity: "jackpot"}
+            ]
         };
         
-        // Преобразуем 2 и 3 кейс в массивы объектов
-        itemsByCase[2] = itemsByCase[2].values.map((val, i) => ({
-            value: val,
-            name: itemsByCase[2].names[i],
-            rarity: itemsByCase[2].rarities[i]
-        }));
+        const prices = {1: 100, 2: 500, 3: 1000};
         
-        itemsByCase[3] = itemsByCase[3].values.map((val, i) => ({
-            value: val,
-            name: itemsByCase[3].names[i],
-            rarity: itemsByCase[3].rarities[i]
-        }));
-        
-        const casePrices = {1: 100, 2: 500, 3: 1000};
-        
-        function updateBalanceDisplay() {
-            document.getElementById('balance').textContent = currentBalance;
+        function updateBalance() {
+            document.getElementById('balance').textContent = balance;
         }
         
-        // Выбор предмета с весами (крупные выпадают реже)
-        function selectRandomItem(items) {
-            // Создаем веса: чем крупнее приз, тем меньше шанс
-            let totalWeight = 0;
-            const weighted = items.map(item => {
-                let weight = 100 / (1 + Math.pow(item.value / 50, 0.7));
+        // Выбор выигрыша с шансами
+        function getRandomItem(caseId) {
+            const caseItems = items[caseId];
+            
+            // Чем больше ценность, тем меньше шанс
+            let total = 0;
+            const weighted = caseItems.map(item => {
+                let weight = 100 / (item.value ** 0.5);
                 weight = Math.max(3, Math.min(40, weight));
-                totalWeight += weight;
+                total += weight;
                 return {item, weight};
             });
             
-            let rand = Math.random() * totalWeight;
+            let rand = Math.random() * total;
             let accum = 0;
             for (let w of weighted) {
                 accum += w.weight;
                 if (rand <= accum) return w.item;
             }
-            return items[0];
+            return caseItems[0];
         }
         
-        // Создание барабанов с прокручивающимися цифрами
-        async function showSlotAnimation(caseId, finalItem) {
-            const items = itemsByCase[caseId];
-            const reelHeight = 180; // высота одного элемента
+        async function spinSlot(caseId, finalItem) {
+            const caseItems = items[caseId];
+            const reelHeight = 160;
+            const finalIndex = caseItems.findIndex(i => i.value === finalItem.value);
             
-            // Находим индекс финального предмета
-            const finalIndex = items.findIndex(item => item.value === finalItem.value);
+            const reelsDiv = document.getElementById('reels');
+            reelsDiv.innerHTML = '';
             
-            const reelsContainer = document.getElementById('reelsContainer');
-            reelsContainer.innerHTML = '';
-            
-            // Создаем 3 барабана
+            // Создаём 3 барабана
             for (let r = 0; r < 3; r++) {
                 const reel = document.createElement('div');
                 reel.className = 'reel';
@@ -361,14 +312,13 @@
                 strip.className = 'reel-strip';
                 strip.id = `strip-${r}`;
                 
-                // Добавляем все предметы несколько раз для длинной ленты
+                // Лента из предметов (повторяем 8 раз для длины)
                 let html = '';
-                for (let cycle = 0; cycle < 6; cycle++) {
-                    for (let item of items) {
-                        const rarityClass = `value-${item.rarity}`;
+                for (let repeat = 0; repeat < 8; repeat++) {
+                    for (let item of caseItems) {
                         html += `
                             <div class="reel-item">
-                                <div class="reel-value ${rarityClass}">${item.value}</div>
+                                <div class="reel-value value-${item.rarity}">${item.value}</div>
                                 <div class="reel-name">${item.name}</div>
                             </div>
                         `;
@@ -376,100 +326,86 @@
                 }
                 strip.innerHTML = html;
                 reel.appendChild(strip);
-                reelsContainer.appendChild(reel);
+                reelsDiv.appendChild(reel);
             }
             
-            // Показываем оверлей
-            const overlay = document.getElementById('slotOverlay');
-            const statusDiv = document.getElementById('slotStatus');
-            const resultDiv = document.getElementById('slotResult');
+            // Показываем окно
+            document.getElementById('slotOverlay').style.display = 'flex';
+            document.getElementById('slotStatus').innerHTML = '🎰 БАРАБАНЫ КРУТЯТСЯ... 🎰';
+            document.getElementById('slotStatus').className = 'slot-status blink';
+            document.getElementById('slotResult').innerHTML = '';
             
-            overlay.style.display = 'flex';
-            statusDiv.innerHTML = '🎰 БАРАБАНЫ КРУТЯТСЯ... 🎰';
-            statusDiv.className = 'slot-status spinning';
-            resultDiv.innerHTML = '';
-            
-            // Небольшая пауза для рендера
             await new Promise(r => setTimeout(r, 100));
             
-            // Запускаем прокрутку для каждого барабана с разным временем остановки
+            // Запускаем прокрутку каждого барабана
             const promises = [];
             for (let r = 0; r < 3; r++) {
                 const strip = document.getElementById(`strip-${r}`);
-                const itemsPerReel = 6 * items.length;
-                const rotations = 8 + Math.floor(Math.random() * 8); // случайное количество оборотов
-                const targetIndex = finalIndex;
-                const finalPosition = (rotations * itemsPerReel + targetIndex) * reelHeight;
+                const itemsCount = 8 * caseItems.length;
+                const spins = 10 + Math.floor(Math.random() * 10);
+                const finalPos = (spins * itemsCount + finalIndex) * reelHeight;
                 
                 promises.push(new Promise(resolve => {
-                    strip.style.transition = 'transform 1.6s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
-                    strip.style.transform = `translateY(-${finalPosition}px)`;
-                    setTimeout(resolve, 1700);
+                    strip.style.transform = `translateY(-${finalPos}px)`;
+                    setTimeout(resolve, 1800);
                 }));
             }
             
             await Promise.all(promises);
             
             // Показываем результат
-            const rarityClass = `value-${finalItem.rarity}`;
-            statusDiv.innerHTML = '✨ ВЫ ВЫИГРАЛИ! ✨';
-            statusDiv.className = 'slot-status';
-            resultDiv.innerHTML = `
-                <div style="font-size: 24px;">🎁 ${finalItem.name} 🎁</div>
-                <div class="${rarityClass}" style="font-size: 42px; margin-top: 10px;">+${finalItem.value} МОНЕТ!</div>
+            document.getElementById('slotStatus').innerHTML = '✨ ВЫ ВЫИГРАЛИ! ✨';
+            document.getElementById('slotStatus').className = 'slot-status';
+            document.getElementById('slotResult').innerHTML = `
+                <div style="font-size: 20px;">🎁 ${finalItem.name} 🎁</div>
+                <div class="value-${finalItem.rarity}" style="font-size: 36px;">+${finalItem.value} монет!</div>
             `;
         }
         
-        // Основная функция открытия кейса
-        async function openCaseWithSlot(caseId) {
-            if (isPlaying) {
-                alert('Подожди, кейс уже открывается...');
+        async function openCase(caseId) {
+            if (isSpinning) {
+                alert("Подожди, кейс уже открывается!");
                 return;
             }
             
-            const price = casePrices[caseId];
+            const price = prices[caseId];
             
-            if (currentBalance < price) {
-                alert(`Не хватает монет! Нужно ${price} монет. Обнови страницу для сброса.`);
+            if (balance < price) {
+                alert(`Не хватает монет! Нужно ${price}, у тебя ${balance}`);
                 return;
             }
             
-            isPlaying = true;
+            isSpinning = true;
             
             // Списываем цену
-            currentBalance -= price;
-            updateBalanceDisplay();
+            balance -= price;
+            updateBalance();
             
-            // Выбираем предмет
-            const items = itemsByCase[caseId];
-            const wonItem = selectRandomItem(items);
+            // Выбираем выигрыш
+            const won = getRandomItem(caseId);
             
-            // Запускаем анимацию слота
-            await showSlotAnimation(caseId, wonItem);
+            // Запускаем анимацию прокрутки
+            await spinSlot(caseId, won);
             
             // Добавляем выигрыш
-            currentBalance += wonItem.value;
-            updateBalanceDisplay();
+            balance += won.value;
+            updateBalance();
             
-            isPlaying = false;
+            isSpinning = false;
         }
         
         function closeSlot() {
             document.getElementById('slotOverlay').style.display = 'none';
-            document.getElementById('slotStatus').innerHTML = 'Нажми на кейс, чтобы начать';
-            document.getElementById('slotStatus').className = 'slot-status';
-            document.getElementById('slotResult').innerHTML = '';
         }
         
         // Закрытие по клику на фон
         window.onclick = function(e) {
-            const overlay = document.getElementById('slotOverlay');
-            if (e.target === overlay) {
+            if (e.target === document.getElementById('slotOverlay')) {
                 closeSlot();
             }
         };
         
-        updateBalanceDisplay();
+        updateBalance();
     </script>
 </body>
 </html>
