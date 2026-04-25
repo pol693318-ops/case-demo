@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Opener Demo - GitHub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .balance-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .balance-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .cases-container {
+            padding: 40px;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .case-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            width: 250px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .case-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .case-image {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+        
+        .case-price {
+            color: #ffd700;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1e1e3e, #2a1e3e);
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .close-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🎲 CASE OPENING DEMO</div>
+        <div class="balance-card">
+            <div>BALANCE</div>
+            <div class="balance-value" id="balance">1000</div>
+        </div>
+    </div>
+    
+    <div class="cases-container">
+        <div class="case-card" onclick="openCaseDemo(1)">
+            <div class="case-image">📦</div>
+            <div class="case-name">🍀 Lucky Starter</div>
+            <div class="case-price">💰 100 coins</div>
+        </div>
+        <div class="case-card" onclick="openCaseDemo(2)">
+            <div class="case-image">🔥</div>
+            <div class="case-name">🔥 Premium Vault</div>
+            <div class="case-price">💰 500 coins</div>
+        </div>
+        <div class="case-card" onclick="openCaseDemo(3)">
+            <div class="case-image">💎</div>
+            <div class="case-name">👑 Legendary</div>
+            <div class="case-price">💰 1000 coins</div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        🔒 Демонстрационная версия | Реальные кейсы работают через бэкенд
+    </div>
+    
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div style="font-size: 60px; margin-bottom: 20px;" id="winEmoji">🎉</div>
+            <div style="font-size: 28px; font-weight: bold;" id="winTitle">You won!</div>
+            <div style="font-size: 32px; margin: 15px 0;" id="winValue">0 coins</div>
+            <button class="close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+    
+    <script>
+        let balance = 1000;
+        
+        function updateBalanceDisplay() {
+            document.getElementById('balance').textContent = balance;
+        }
+        
+        // Предметы для демо-открытия
+        const items = {
+            1: [  // Starter case
+                {name: "Common Skin", value: 20, chance: 40, emoji: "🎒"},
+                {name: "Rare Skin", value: 80, chance: 30, emoji: "🔵"},
+                {name: "Epic Skin", value: 200, chance: 15, emoji: "🟣"},
+                {name: "Legendary", value: 500, chance: 10, emoji: "🟠"},
+                {name: "🔥 JACKPOT!", value: 2500, chance: 5, emoji: "💎"}
+            ],
+            2: [  // Premium case
+                {name: "Epic Weapon", value: 400, chance: 40, emoji: "⚔️"},
+                {name: "Legendary", value: 1000, chance: 30, emoji: "👑"},
+                {name: "Mythical", value: 3000, chance: 15, emoji: "🐉"},
+                {name: "God Tier", value: 7500, chance: 10, emoji: "😇"},
+                {name: "💀 ULTRA", value: 20000, chance: 5, emoji: "🔥"}
+            ],
+            3: [  // Legendary case
+                {name: "Rare Item", value: 800, chance: 35, emoji: "📦"},
+                {name: "Legendary", value: 2000, chance: 30, emoji: "⭐"},
+                {name: "Mythical", value: 5000, chance: 20, emoji: "🌟"},
+                {name: "Divine", value: 15000, chance: 10, emoji: "✨"},
+                {name: "🌈 GODLY", value: 50000, chance: 5, emoji: "💎"}
+            ]
+        };
+        
+        const prices = {1: 100, 2: 500, 3: 1000};
+        
+        function openCaseDemo(caseId) {
+            const price = prices[caseId];
+            
+            if (balance < price) {
+                alert("Not enough balance! Refresh page to reset.");
+                return;
+            }
+            
+            // Списываем цену
+            balance -= price;
+            updateBalanceDisplay();
+            
+            // Выбираем предмет по шансам
+            const caseItems = items[caseId];
+            let rand = Math.random() * 100;
+            let cumulative = 0;
+            let selectedItem = caseItems[0];
+            
+            for (let item of caseItems) {
+                cumulative += item.chance;
+                if (rand <= cumulative) {
+                    selectedItem = item;
+                    break;
+                }
+            }
+            
+            // Добавляем выигрыш к балансу
+            balance += selectedItem.value;
+            updateBalanceDisplay();
+            
+            // Показываем результат
+            showResult(selectedItem);
+        }
+        
+        function showResult(item) {
+            document.getElementById('winEmoji').textContent = item.emoji;
+            document.getElementById('winTitle').textContent = `You won: ${item.name}!`;
+            document.getElementById('winValue').innerHTML = `💰 ${item.value} coins`;
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            const modal = document.getElementById('resultModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+        
+        updateBalanceDisplay();
+    </script>
+</body>
+</html>
